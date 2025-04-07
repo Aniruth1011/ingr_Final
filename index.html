@@ -1,0 +1,251 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Ingredient Detector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fcd34d; /* Yellow background */
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        h1 {
+            color: #333;
+        }
+        input[type="file"] {
+            display: block;
+            margin: 10px auto;
+        }
+        img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        button {
+            background-color: #2563eb;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:disabled {
+            background-color: gray;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Food Ingredient Detector</h1>
+
+    <div class="container">
+        <input type="file" id="imageInput" accept="image/*">
+        <img id="previewImage" style="display: none;">
+        <button id="uploadBtn" onclick="uploadImage()">Analyze Image</button>
+
+        <div class="result" id="resultContainer" style="display: none;">
+            <h2>Recipe</h2>
+            <p id="recipeText"></p>
+            <h2>Ingredients</h2>
+            <ul id="ingredientsList"></ul>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        // Handle file selection
+        document.getElementById("imageInput").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById("previewImage").src = e.target.result;
+                    document.getElementById("previewImage").style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Upload and analyze image
+        function uploadImage() {
+            if (!selectedFile) {
+                alert("Please select an image!");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+
+            document.getElementById("uploadBtn").innerText = "Processing...";
+            document.getElementById("uploadBtn").disabled = true;
+
+            fetch("http://localhost:5000/predict", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("recipeText").innerText = data.recipe;
+                document.getElementById("ingredientsList").innerHTML = data.ingredients.map(ing => `<li>${ing}</li>`).join('');
+                document.getElementById("resultContainer").style.display = "block";
+            })
+            .catch(error => {
+                console.error("Error processing image:", error);
+                alert("Failed to process image.");
+            })
+            .finally(() => {
+                document.getElementById("uploadBtn").innerText = "Analyze Image";
+                document.getElementById("uploadBtn").disabled = false;
+            });
+        }
+    </script>
+
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Ingredient Detector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fcd34d; /* Yellow background */
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        input[type="file"] {
+            display: block;
+            margin: 10px auto;
+        }
+        img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        button {
+            background-color: #2563eb;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:disabled {
+            background-color: gray;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: left;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Food Ingredient Detector</h1>
+
+    <div class="container">
+        <input type="file" id="imageInput" accept="image/*">
+        <img id="previewImage" style="display: none;">
+        <button id="uploadBtn" onclick="uploadImage()">Analyze Image</button>
+
+        <div class="result" id="resultContainer">
+            <h2>Recipe Title</h2>
+            <p id="recipeTitle"><em>Title will appear here</em></p>
+            <h2>Recipe</h2>
+            <p id="recipeText"><em>Recipe will appear here</em></p>
+            <h2>Ingredients</h2>
+            <ul id="ingredientsList"></ul>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        document.getElementById("imageInput").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById("previewImage").src = e.target.result;
+                    document.getElementById("previewImage").style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function uploadImage() {
+            if (!selectedFile) {
+                alert("Please select an image!");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+
+            document.getElementById("uploadBtn").innerText = "Processing...";
+            document.getElementById("uploadBtn").disabled = true;
+
+            fetch("http://localhost:5000/predict", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("recipeTitle").innerText = data.title || "No title available";
+                document.getElementById("recipeText").innerText = data.recipe || "No recipe available";
+                document.getElementById("ingredientsList").innerHTML = data.ingredients.length > 0 ? data.ingredients.map(ing => `<li>${ing}</li>`).join('') : "<li>No ingredients found</li>";
+                document.getElementById("resultContainer").style.display = "block";
+            })
+            .catch(error => {
+                console.error("Error processing image:", error);
+                alert("Failed to process image.");
+            })
+            .finally(() => {
+                document.getElementById("uploadBtn").innerText = "Analyze Image";
+                document.getElementById("uploadBtn").disabled = false;
+            });
+        }
+    </script>
+
+</body>
+</html>
