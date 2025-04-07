@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Ingredient Detector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fcd34d;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+        button {
+            background-color: #2563eb;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .spinner {
+            display: none;
+            margin: 10px auto;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2563eb;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Food Ingredient Detector</h1>
+
+    <div class="container">
+        <input type="file" id="imageInput" accept="image/*">
+        <img id="previewImage">
+        <button id="uploadBtn" onclick="uploadImage()">Analyze Image</button>
+        <div class="spinner" id="spinner"></div>
+
+        <div class="result" id="resultContainer" style="display: none;">
+            <h2>Recipe</h2>
+            <p id="recipeText"></p>
+            <h2>Ingredients</h2>
+            <ul id="ingredientsList"></ul>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        document.getElementById("imageInput").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById("previewImage").src = e.target.result;
+                    document.getElementById("previewImage").style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function uploadImage() {
+            if (!selectedFile) {
+                alert("Please select an image!");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+
+            document.getElementById("uploadBtn").innerText = "Processing...";
+            document.getElementById("uploadBtn").disabled = true;
+            document.getElementById("spinner").style.display = "block";
+
+            fetch("http://localhost:5000/predict", {  // Connects to Flask API
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert("Error: " + data.error);
+                    return;
+                }
+
+                document.getElementById("recipeText").innerText = data.recipe;
+                document.getElementById("ingredientsList").innerHTML = data.ingredients.map(ing => `<li>${ing}</li>`).join('');
+                document.getElementById("resultContainer").style.display = "block";
+            })
+            .catch(error => {
+                console.error("Error processing image:", error);
+                alert("Failed to process image.");
+            })
+            .finally(() => {
+                document.getElementById("uploadBtn").innerText = "Analyze Image";
+                document.getElementById("uploadBtn").disabled = false;
+                document.getElementById("spinner").style.display = "none";
+            });
+        }
+    </script>
+
+</body>
+</html>
